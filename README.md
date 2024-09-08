@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Professor Rating Application
 
-## Getting Started
+## Overview
 
-First, run the development server:
+The AI Professor Rating Application is designed to help users find relevant professors based on their specific queries using Retrieval-Augmented Generation (RAG). This application leverages the Gemini API for embedding generation and Pinecone for efficient similarity search.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Access
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application is deployed and can be accessed at the following link:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+[AI Professor Rating Application](https://professor-rating.rehantech.me/)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Key Features
 
-## Learn More
+- **Retrieval-Augmented Generation (RAG):** Combines information retrieval and text generation to provide accurate responses to user queries.
+- **Gemini API:** Utilized for generating text embeddings, which are essential for finding relevant professors.
+- **Pinecone:** Manages and searches the vector embeddings for efficient retrieval of relevant professor information.
 
-To learn more about Next.js, take a look at the following resources:
+### How It Works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **User Query:** The user submits a query through the application interface.
+2. **Embedding Generation:** The application uses the Gemini API to generate an embedding for the user's query.
+3. **Vector Search:** The generated embedding is used to query the Pinecone index, which contains precomputed embeddings of professor reviews.
+4. **Response Generation:** The application synthesizes a response using the top matching results from Pinecone and provides relevant professor recommendations.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Installation
 
-## Deploy on Vercel
+1. **Clone the Repository**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   git clone https://github.com/Abdur-Rehman-Rehan/ai-professor-rating
+   cd card-gen
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **Install Dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Install Required Packages:**
+
+   ```bash
+   python Script/requirements.py
+   ```
+
+4. **Load Data and Configure Environment:**
+
+Update the .env.local file with your Pinecone and Gemini API keys and run the load.py script to initialize the Pinecone index and process the review data.
+    ```bash
+    python Script/load.py
+    ```
+5. **Run the Next.js Application:**
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    # or
+    bun dev
+    ```
+
+Open <http://localhost:3000> with your browser to view the application.
+
+### Documentation and Support
+
+For more information on the technologies used in this project, you can refer to the following resources:
+
+- **Gemini API Documentation:** Get detailed information about the Gemini API and how to use it for generating text embeddings.
+  - [Gemini API Documentation](https://developers.google.com/generative-ai)
+
+- **Pinecone Documentation:** Learn how to use Pinecone for vector search and managing vector indexes.
+  - [Pinecone Documentation](https://docs.pinecone.io)
+
+### Contributions
+
+Contributions to the project are welcome!
