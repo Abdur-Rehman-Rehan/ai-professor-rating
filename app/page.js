@@ -1,95 +1,174 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import {
+  Box,
+  Button,
+  Stack,
+  TextField,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [messages, setMessages] = useState([
+    {
+      role: "assistant",
+      content: `Hi! I'm the Rate My Professor support assistant. How can I help you today?`,
+    },
+  ]);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false); // State for loading
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const sendMessage = async () => {
+    if (!message.trim()) return; // Prevent sending empty messages
+
+    setMessage("");
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { role: "user", content: message },
+      { role: "assistant", content: "" },
+    ]);
+    setLoading(true); // Start loading
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify([...messages, { role: "user", content: message }]),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let result = "";
+
+      const processText = async ({ done, value }) => {
+        if (done) {
+          setLoading(false); // Stop loading
+          return;
+        }
+        const text = decoder.decode(value || new Uint8Array(), {
+          stream: true,
+        });
+        setMessages((prevMessages) => {
+          const lastMessage = prevMessages[prevMessages.length - 1];
+          const otherMessages = prevMessages.slice(0, -1);
+          return [
+            ...otherMessages,
+            { ...lastMessage, content: lastMessage.content + text },
+          ];
+        });
+        result += text;
+        return reader.read().then(processText);
+      };
+
+      await reader.read().then(processText);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          role: "assistant",
+          content: "Sorry, something went wrong. Please try again later.",
+        },
+      ]);
+      setLoading(false); // Stop loading on error
+    }
+  };
+
+  return (
+    <Box
+      width="100vw"
+      height="100vh"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      backgroundColor="#212121"
+    >
+      <Stack
+        direction="column"
+        width="500px"
+        height="700px"
+        border="2px solid #047d57"
+        borderRadius="20px"
+        boxShadow="0 4px 12px rgba(0, 0, 0, 0.1)"
+        p={2}
+        spacing={3}
+        bgcolor="#303030"
+      >
+        <Stack
+          direction="column"
+          spacing={2}
+          flexGrow={1}
+          overflow="auto"
+          maxHeight="100%"
+          padding="0 8px"
+        >
+          {messages.map((message, index) => (
+            <Box
+              key={index}
+              display="flex"
+              justifyContent={
+                message.role === "assistant" ? "flex-start" : "flex-end"
+              }
+            >
+              <Box
+                maxWidth="80%"
+                bgcolor={
+                  message.role === "assistant"
+                    ? "primary.main"
+                    : "secondary.main"
+                }
+                color="white"
+                borderRadius={8}
+                p="20px"
+                sx={{ whiteSpace: "pre-line", wordWrap: "break-word" }}
+              >
+                {message.content.split("\n").map((line, i) => (
+                  <Typography
+                    key={i}
+                    variant="body2"
+                    sx={{
+                      marginBottom:
+                        i < message.content.split("\n").length - 1 ? 1 : 0,
+                    }}
+                  >
+                    {line}
+                  </Typography>
+                ))}
+              </Box>
+            </Box>
+          ))}
+          {loading && (
+            <Box display="flex" justifyContent="center" p={2}>
+              <CircularProgress />
+            </Box>
+          )}
+        </Stack>
+        <Stack direction="row" spacing={2}>
+          <TextField
+            label="Message"
+            fullWidth
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            disabled={loading} // Disable input while loading
+          />
+          <Button
+            variant="contained"
+            onClick={sendMessage}
+            disabled={loading} // Disable button while loading
           >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            Send
+          </Button>
+        </Stack>
+      </Stack>
+    </Box>
   );
 }
