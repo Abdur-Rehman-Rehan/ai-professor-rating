@@ -45,12 +45,14 @@ The application is deployed and can be accessed at the following link:
    ```
 
 4. **Load Data and Configure Environment:**
-
 Update the .env.local file with your Pinecone and Gemini API keys and run the load.py script to initialize the Pinecone index and process the review data.
+
     ```bash
     python Script/load.py
     ```
+
 5. **Run the Next.js Application:**
+
     ```bash
     npm run dev
     # or
